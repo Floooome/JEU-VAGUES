@@ -17,16 +17,21 @@ const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v))
 const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 // Le gardien s'arrête et affiche sa zone BOSS_WINDUP secondes avant de frapper : l'attaque peut s'esquiver.
 const BOSS_BLAST_R=125,BOSS_WINDUP=.8,SHOT_SPEED=460,SAFE_SPAWN=230;
-let W=0,H=0,dpr=1,hudBottom=50,last=0,clock=0,state='menu',wave=1,spawned=0,spawnTimer=0,between=0,kills=0,bossSpawned=false,bannerTimer=0;
+// Composition des vagues : nombre de créatures et intervalle d'apparition (s). La vague 5 se termine par le gardien.
+const WAVES={1:{count:10,every:.8},2:{count:11,every:.85},3:{count:14,every:.75},4:{count:17,every:.65},5:{count:16,every:.56}};
+const BETWEEN_HEAL=.15,BEST_KEY='clairiere-des-brumes:record';
+let W=0,H=0,SW=0,SH=0,S=1,dpr=1,hudBottom=50,last=0,clock=0,state='menu',wave=1,spawned=0,spawnTimer=0,between=0,kills=0,bossSpawned=false,bannerTimer=0;
 let projectiles=[],enemies=[],particles=[],rings=[],texts=[],shake=0,hurtFlash=0,keys={},pointer=null,joy=null,player=null;
 // Décor en coordonnées relatives : il ne « saute » plus quand la barre d'adresse mobile apparaît ou disparaît.
 const decor=Array.from({length:55},()=>({x:Math.random(),y:Math.random(),r:rand(1,4),kind:Math.random()}));
 const newPlayer=()=>({x:W/2,y:H/2,r:15,hp:100,maxHp:100,speed:210,damage:24,rate:.57,range:350,shots:1,shield:0,fire:0,inv:0});
 
+// Le monde est mesuré en unités de jeu : environ 400 unités sur le petit côté de l'écran.
+// Vitesses, portée et distances restent ainsi comparables d'un téléphone à l'autre (zoom plafonné sur grand écran).
 function resize(){
-  dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
-  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
-  hudBottom=hud.getBoundingClientRect().bottom;
+  dpr=Math.min(devicePixelRatio||1,2);SW=innerWidth;SH=innerHeight;S=clamp(Math.min(SW,SH)/400,.8,1.6);W=SW/S;H=SH/S;
+  canvas.width=Math.round(SW*dpr);canvas.height=Math.round(SH*dpr);
+  hudBottom=hud.getBoundingClientRect().bottom/S;
   if(state==='menu'&&player){player.x=W/2;player.y=H/2}
 }
 addEventListener('resize',resize);resize();player=newPlayer();
@@ -40,6 +45,11 @@ function setPanel(html,armDelay=0){
 }
 function hidePanel(){overlay.classList.add('hidden');pauseEl.classList.remove('hidden')}
 function announce(t){clearTimeout(bannerTimer);banner.textContent=t;banner.classList.add('show');bannerTimer=setTimeout(()=>banner.classList.remove('show'),1600)}
+function loadBest(){try{return JSON.parse(localStorage.getItem(BEST_KEY))}catch(e){return null}}
+function saveBest(run){try{localStorage.setItem(BEST_KEY,JSON.stringify(run))}catch(e){}}
+const runScore=r=>r?(r.won?6:r.wave)*1000+r.kills:-1;
+const describeRun=r=>(r.won?'clairière sauvée':'vague '+r.wave)+' · '+r.kills+' créatures';
+function bestLine(){const b=loadBest();return b?'<div class="small">Record : '+describeRun(b)+'</div>':''}
 function pause(){if(state!=='playing')return;state='paused';setPanel('<div class="sigil">☽</div><h1>Pause</h1><p>La clairière attend ton retour.</p><button class="button" id="resume">Reprendre</button>');$('resume').onclick=resume}
 function resume(){if(state!=='paused')return;state='playing';hidePanel()}
 pauseEl.onclick=pause;
@@ -49,22 +59,34 @@ addEventListener('blur',pause);
 
 // --- Déroulement d'une partie ---
 function reset(){wave=1;spawned=0;spawnTimer=.8;between=0;kills=0;clock=0;bossSpawned=false;projectiles=[];enemies=[];particles=[];rings=[];texts=[];shake=0;hurtFlash=0;player=newPlayer();state='playing';hidePanel();hint.style.display='block';announce('Vague 1 · Les brumes s’éveillent')}
-function menu(){state='menu';setPanel('<div class="sigil">✧</div><h1>La Clairière<br>des Brumes</h1><p>Protège la clairière pendant cinq vagues. Déplace la mage du bout du doigt : ses sorts visent automatiquement les créatures proches.</p><button class="button" id="start">Entrer dans la clairière</button><div class="small">Sur ordinateur : flèches ou ZQSD / WASD · Échap pour la pause</div>');$('start').onclick=reset}
+function menu(){state='menu';setPanel('<div class="sigil">✧</div><h1>La Clairière<br>des Brumes</h1><p>Protège la clairière pendant cinq vagues. Déplace la mage du bout du doigt : ses sorts visent automatiquement les créatures proches.</p><button class="button" id="start">Entrer dans la clairière</button>'+bestLine()+'<div class="small">Sur ordinateur : flèches ou ZQSD / WASD · Échap pour la pause</div>');$('start').onclick=reset}
 const upgrades=[
   {name:'✦ Orbe renforcé',desc:'+35 % de dégâts',apply:()=>player.damage*=1.35},
   {name:'⚡ Incantation rapide',desc:'Attaques 22 % plus fréquentes',apply:()=>player.rate*=.78},
   {name:'❖ Pas léger',desc:'+18 % de vitesse',apply:()=>player.speed*=1.18},
   {name:'♡ Sève de vie',desc:'+25 PV maximum et soigne 35 PV',apply:()=>{player.maxHp+=25;player.hp=Math.min(player.maxHp,player.hp+35)}},
-  {name:'✧ Orbe jumeau',desc:'Un projectile supplémentaire par attaque',apply:()=>player.shots=Math.min(5,player.shots+1)},
-  {name:'⬡ Écorce protectrice',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15)},
+  {name:'✧ Orbe jumeau',desc:'Un projectile supplémentaire par attaque',apply:()=>player.shots=Math.min(5,player.shots+1),available:()=>player.shots<5},
+  {name:'⬡ Écorce protectrice',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15),available:()=>player.shield<.59},
   {name:'☄ Longue portée',desc:'+25 % de portée magique',apply:()=>player.range*=1.25}
 ];
 function chooseUpgrade(){
-  state='upgrade';const pool=[...upgrades].sort(()=>Math.random()-.5).slice(0,3);
-  setPanel('<div class="sigil">❧</div><h1>Vague '+wave+' repoussée</h1><p>La clairière t’offre un pouvoir. Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>',600);
+  state='upgrade';
+  // Tirage sans biais parmi les améliorations encore utiles (les bonus déjà au maximum sont exclus).
+  const pool=upgrades.filter(u=>!u.available||u.available());
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  pool.length=Math.min(3,pool.length);
+  const healed=Math.round(Math.min(player.maxHp-player.hp,player.maxHp*BETWEEN_HEAL));player.hp+=healed;refreshHud();
+  setPanel('<div class="sigil">❧</div><h1>Vague '+wave+' repoussée</h1><p>'+(healed>0?'La clairière te rend '+healed+' PV et t’offre un pouvoir.':'La clairière t’offre un pouvoir.')+' Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>',600);
   panel.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{pool[+b.dataset.i].apply();wave++;spawned=0;spawnTimer=1;between=0;state='playing';hidePanel();announce(wave===5?'Vague 5 · Le gardien corrompu':'Vague '+wave)});
 }
-function end(win){state=win?'won':'lost';refreshHud();buzz(win?[30,60,30]:120);setPanel('<div class="sigil">'+(win?'✺':'☽')+'</div><h1>'+(win?'La clairière est sauvée !':'La brume a gagné')+'</h1><p>'+(win?'Le gardien est vaincu. La forêt peut respirer à nouveau.':'Tu as atteint la vague '+wave+' et vaincu '+kills+' créatures.')+'</p><button class="button" id="again">Rejouer</button>',800);$('again').onclick=reset}
+function end(win){
+  state=win?'won':'lost';refreshHud();buzz(win?[30,60,30]:120);
+  const run={wave,kills,won:win},prev=loadBest(),record=runScore(run)>runScore(prev);
+  if(record)saveBest(run);
+  const recordLine=record&&prev?'<div class="small" style="color:#f5ce85">✦ Nouveau record ! (avant : '+describeRun(prev)+')</div>':record?'':bestLine();
+  setPanel('<div class="sigil">'+(win?'✺':'☽')+'</div><h1>'+(win?'La clairière est sauvée !':'La brume a gagné')+'</h1><p>'+(win?'Le gardien est vaincu après '+kills+' créatures repoussées. La forêt peut respirer à nouveau.':'Tu as atteint la vague '+wave+' et vaincu '+kills+' créatures.')+'</p><button class="button" id="again">Rejouer</button>'+recordLine,800);
+  $('again').onclick=reset;
+}
 
 // --- Simulation ---
 function edgePoint(){const side=Math.floor(Math.random()*4),pad=35;return{x:side===0?-pad:side===1?W+pad:rand(0,W),y:side===2?-pad:side===3?H+pad:rand(0,H)}}
@@ -96,8 +118,8 @@ function update(dt){
   if(len>0){player.x+=mx/Math.max(1,len)*player.speed*dt;player.y+=my/Math.max(1,len)*player.speed*dt}
   player.x=clamp(player.x,player.r+8,W-player.r-8);player.y=clamp(player.y,hudBottom+26,H-player.r-8);
 
-  const total=wave===5?16:5+wave*3;
-  if(spawned<total){spawnTimer-=dt;if(spawnTimer<=0){let type=wave>=3&&spawned%6===4?'brute':wave>=2&&spawned%4===2?'wisp':'goblin';createEnemy(type);spawned++;spawnTimer=wave===5?.56:Math.max(.4,1.05-wave*.1)}}
+  const total=WAVES[wave].count;
+  if(spawned<total){spawnTimer-=dt;if(spawnTimer<=0){let type=wave>=3&&spawned%6===4?'brute':(wave>=2&&spawned%4===2)||(wave===1&&spawned%5===3)?'wisp':'goblin';createEnemy(type);spawned++;spawnTimer=WAVES[wave].every}}
   else if(wave===5&&!bossSpawned){createEnemy('boss');bossSpawned=true;announce('Le gardien corrompu apparaît !')}
 
   if(player.fire<=0&&enemies.length){
@@ -142,7 +164,7 @@ function update(dt){
 function circle(x,y,r,color){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()}
 function draw(){
   const sx=shake?rand(-shake,shake):0,sy=shake?rand(-shake,shake):0;
-  ctx.setTransform(dpr,0,0,dpr,sx*dpr,sy*dpr);
+  ctx.setTransform(dpr*S,0,0,dpr*S,sx*dpr*S,sy*dpr*S);
   ctx.fillStyle='#172a2b';ctx.fillRect(-20,-20,W+40,H+40);let gradient=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.68);gradient.addColorStop(0,'#385446');gradient.addColorStop(1,'#14292b');ctx.fillStyle=gradient;ctx.fillRect(-20,-20,W+40,H+40);
   for(const d of decor){ctx.globalAlpha=.16+Math.sin(clock*1.5+d.x*W)*.08;circle(d.x*W,d.y*H,d.r,d.kind>.86?'#d4c889':'#abc9a0')}ctx.globalAlpha=1;
   ctx.strokeStyle='#91a98b16';ctx.lineWidth=2;for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
@@ -162,8 +184,9 @@ function draw(){
   for(const p of projectiles){circle(p.x,p.y,9,'#e8c98555');circle(p.x,p.y,p.r,'#ffe3a2')}for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;
   circle(player.x,player.y+8,18,'#10232a99');circle(player.x,player.y,player.r,player.inv>0&&Math.floor(clock*12)%2?'#f7b7ab':'#547e91');ctx.fillStyle='#29395a';ctx.beginPath();ctx.moveTo(player.x-17,player.y+8);ctx.lineTo(player.x,player.y-25);ctx.lineTo(player.x+17,player.y+8);ctx.fill();circle(player.x,player.y-8,8,'#eec89e');circle(player.x+12,player.y+1,3,'#f9d58d');ctx.strokeStyle='#dfc595';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x+13,player.y+3);ctx.lineTo(player.x+18,player.y-19);ctx.stroke();circle(player.x+18,player.y-20,5,'#fbe09c');
   ctx.textAlign='center';for(const t of texts){ctx.globalAlpha=Math.min(1,t.life/.3);ctx.font='800 '+t.size+'px system-ui,sans-serif';ctx.lineWidth=3;ctx.strokeStyle='#10202699';ctx.strokeText(t.text,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.text,t.x,t.y)}ctx.globalAlpha=1;
+  // Le reste est dessiné en pixels d'écran (le joystick suit le doigt).
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  if(hurtFlash>0){const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.75);v.addColorStop(0,'#c0303000');v.addColorStop(1,'rgba(200,40,50,'+(hurtFlash*1.3).toFixed(2)+')');ctx.fillStyle=v;ctx.fillRect(0,0,W,H)}
+  if(hurtFlash>0){const v=ctx.createRadialGradient(SW/2,SH/2,Math.min(SW,SH)*.3,SW/2,SH/2,Math.max(SW,SH)*.75);v.addColorStop(0,'#c0303000');v.addColorStop(1,'rgba(200,40,50,'+(hurtFlash*1.3).toFixed(2)+')');ctx.fillStyle=v;ctx.fillRect(0,0,SW,SH)}
   if(joy){ctx.strokeStyle='#eedba487';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.x,joy.y,43,0,7);ctx.stroke();circle(joy.x+joy.dx*35,joy.y+joy.dy*35,16,'#e8d5a766')}
 }
 function loop(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
