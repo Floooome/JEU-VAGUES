@@ -1,47 +1,153 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><meta name="theme-color" content="#101a21"><title>La Clairière des Brumes</title><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101a21;color:#f4eac8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}.hud{position:absolute;top:max(12px,env(safe-area-inset-top));left:14px;right:14px;display:flex;gap:10px;align-items:center;pointer-events:none}.bar{height:13px;border:2px solid #e9cf98;border-radius:20px;background:#301d25;overflow:hidden;flex:1;max-width:210px;box-shadow:0 2px 12px #0008}.fill{height:100%;background:linear-gradient(90deg,#d95765,#f3ad82);width:100%;transition:width .15s}.pill{padding:6px 11px;background:#15252bcc;border:1px solid #c8a76d8;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px #0005}.topright{margin-left:auto}.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:#0b151bbd;backdrop-filter:blur(6px)}.hidden{display:none}.panel{width:min(440px,100%);padding:27px 24px;background:linear-gradient(160deg,#25383a,#16252e);border:2px solid #b9945d;border-radius:22px;text-align:center;box-shadow:0 22px 70px #000a,inset 0 1px #ffffff25}.sigil{font-size:46px;line-height:1;margin-bottom:8px}h1{font-family:Georgia,serif;font-size:clamp(28px,7vw,39px);line-height:1.08;margin:8px 0 12px;color:#f6d99b}p{line-height:1.5;color:#d7d4c5;margin:10px 0 20px;font-size:15px}.button,.choice{appearance:none;border:1px solid #d3b37c;color:#1a2630;background:linear-gradient(#f5db9d,#caa76b);border-radius:13px;font-weight:800;font-size:16px;padding:13px 18px;cursor:pointer;width:100%;min-height:49px}.button:active,.choice:active{transform:scale(.98)}.choices{display:grid;gap:10px;text-align:left}.choice{background:#21383c;color:#f5e8ca;text-align:left;padding:12px 14px}.choice strong{display:block;color:#f5ce85;font-size:17px}.choice span{display:block;font-size:13px;font-weight:400;color:#d3d9cf;margin-top:3px}.small{font-size:12px;color:#adbdb2;margin:14px 0 0}.wavebanner{position:absolute;top:22%;left:0;right:0;text-align:center;font-family:Georgia,serif;font-size:28px;color:#ffdda0;text-shadow:0 2px 18px #000;pointer-events:none;opacity:0;transition:opacity .3s}.wavebanner.show{opacity:1}.pause{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));right:17px;border:1px solid #d7bd8a;background:#1e3539c9;color:#f5e6c5;border-radius:50%;width:44px;height:44px;font-size:19px;cursor:pointer}.hint{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:17px;color:#e1e2cca8;font-size:12px;pointer-events:none}#overlay:not(.hidden){z-index:5}@media(min-width:700px){.hint{font-size:14px}}
-</style></head><body><canvas id="game" aria-label="Arène de jeu"></canvas><div class="hud"><div class="pill" id="wave">Vague 1/5</div><div class="bar"><div class="fill" id="health"></div></div><div class="pill topright" id="kills">0 ✦</div></div><div class="wavebanner" id="banner"></div><div class="hint" id="hint">Glisser pour se déplacer · attaque automatique</div><button class="pause" id="pause" aria-label="Pause">Ⅱ</button><div class="overlay" id="overlay"><div class="panel" id="panel"></div></div><script>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><meta name="theme-color" content="#101a21"><title>La Clairière des Brumes</title><style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101a21;color:#f4eac8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));display:flex;gap:10px;align-items:center;pointer-events:none}.bar{height:13px;border:2px solid #e9cf98;border-radius:20px;background:#301d25;overflow:hidden;flex:1;max-width:210px;box-shadow:0 2px 12px #0008}.fill{height:100%;background:linear-gradient(90deg,#d95765,#f3ad82);width:100%;transition:width .15s}.pill{padding:6px 11px;background:#15252bcc;border:1px solid #c8a76d88;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px #0005}.topright{margin-left:auto}
+.overlay{position:absolute;inset:0;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:max(22px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left));background:#0b151bbd;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}.hidden{display:none}.panel{margin:auto;width:min(440px,100%);padding:27px 24px;background:linear-gradient(160deg,#25383a,#16252e);border:2px solid #b9945d;border-radius:22px;text-align:center;box-shadow:0 22px 70px #000a,inset 0 1px #ffffff25;animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.97)}}
+.sigil{font-size:46px;line-height:1;margin-bottom:8px}h1{font-family:Georgia,serif;font-size:clamp(28px,7vw,39px);line-height:1.08;margin:8px 0 12px;color:#f6d99b}p{line-height:1.5;color:#d7d4c5;margin:10px 0 20px;font-size:15px}
+.button,.choice{appearance:none;border:1px solid #d3b37c;color:#1a2630;background:linear-gradient(#f5db9d,#caa76b);border-radius:13px;font-weight:800;font-size:16px;padding:13px 18px;cursor:pointer;width:100%;min-height:49px;transition:opacity .2s}.button:active,.choice:active{transform:scale(.98)}.button:disabled,.choice:disabled{opacity:.45;cursor:default;transform:none}.choices{display:grid;gap:10px;text-align:left}.choice{background:#21383c;color:#f5e8ca;text-align:left;padding:12px 14px}.choice strong{display:block;color:#f5ce85;font-size:17px}.choice span{display:block;font-size:13px;font-weight:400;color:#d3d9cf;margin-top:3px}.small{font-size:12px;color:#adbdb2;margin:14px 0 0}
+.wavebanner{position:absolute;top:22%;left:0;right:0;text-align:center;font-family:Georgia,serif;font-size:28px;color:#ffdda0;text-shadow:0 2px 18px #000;pointer-events:none;opacity:0;transition:opacity .3s}.wavebanner.show{opacity:1}
+.pause{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));right:max(17px,env(safe-area-inset-right));border:1px solid #d7bd8a;background:#1e3539c9;color:#f5e6c5;border-radius:50%;width:48px;height:48px;font-size:19px;cursor:pointer}.pause.hidden{display:none}.hint{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:max(17px,env(safe-area-inset-left));right:80px;color:#e1e2cca8;font-size:12px;pointer-events:none}#overlay:not(.hidden){z-index:5}@media(min-width:700px){.hint{font-size:14px}}
+@media(max-height:520px) and (orientation:landscape){.panel{width:min(760px,100%);padding:16px 20px}.sigil{display:none}h1{font-size:25px;margin:2px 0 6px}p{margin:4px 0 12px;font-size:14px}.choices{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.choice{min-height:0}.wavebanner{top:16%;font-size:24px}}
+</style></head><body><canvas id="game" aria-label="Arène de jeu"></canvas><div class="hud"><div class="pill" id="wave">Vague 1/5</div><div class="bar"><div class="fill" id="health"></div></div><div class="pill topright" id="kills">0 ✦</div></div><div class="wavebanner" id="banner"></div><div class="hint" id="hint">Glisser pour se déplacer · attaque automatique</div><button class="pause hidden" id="pause" aria-label="Pause">Ⅱ</button><div class="overlay" id="overlay"><div class="panel" id="panel"></div></div><script>
 (()=>{'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay'),panel=document.getElementById('panel'),banner=document.getElementById('banner');
-const waveEl=document.getElementById('wave'),hpEl=document.getElementById('health'),killsEl=document.getElementById('kills'),pauseEl=document.getElementById('pause'),hint=document.getElementById('hint');
-let W=0,H=0,dpr=1,last=0,clock=0,state='menu',wave=1,spawned=0,spawnTimer=0,between=0,kills=0,projectiles=[],enemies=[],particles=[],rings=[],decor=[],keys={},pointer=null,joy=null;
-let player={x:0,y:0,r:15,hp:100,maxHp:100,speed:210,damage:24,rate:.57,range:350,shots:1,shield:0,fire:0,inv:0};
+const $=id=>document.getElementById(id);
+const canvas=$('game'),ctx=canvas.getContext('2d'),overlay=$('overlay'),panel=$('panel'),banner=$('banner'),hud=document.querySelector('.hud');
+const waveEl=$('wave'),hpEl=$('health'),killsEl=$('kills'),pauseEl=$('pause'),hint=$('hint');
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);decor=Array.from({length:55},()=>({x:Math.random()*W,y:Math.random()*H,r:rand(1,4),kind:Math.random()}));if(state==='menu'){player.x=W/2;player.y=H/2}}
-addEventListener('resize',resize);resize();
-function setPanel(html){panel.innerHTML=html;overlay.classList.remove('hidden')}
-function hidePanel(){overlay.classList.add('hidden')}
-function announce(t){banner.textContent=t;banner.classList.add('show');setTimeout(()=>banner.classList.remove('show'),1600)}
-function reset(){wave=1;spawned=0;spawnTimer=.8;between=0;kills=0;clock=0;projectiles=[];enemies=[];particles=[];rings=[];window.bossSpawned=false;player={x:W/2,y:H/2,r:15,hp:100,maxHp:100,speed:210,damage:24,rate:.57,range:350,shots:1,shield:0,fire:0,inv:0};state='playing';hidePanel();hint.style.display='block';announce('Vague 1 · Les brumes s’éveillent')}
-function menu(){state='menu';setPanel('<div class="sigil">✧</div><h1>La Clairière<br>des Brumes</h1><p>Protège la clairière pendant cinq vagues. Déplace la mage du bout du doigt : ses sorts visent automatiquement les créatures proches.</p><button class="button" id="start">Entrer dans la clairière</button><div class="small">Sur ordinateur : flèches ou ZQSD / WASD</div>');document.getElementById('start').onclick=reset}
-const upgrades=[{name:'✦ Orbe renforcé',desc:'+35 % de dégâts',apply:()=>player.damage*=1.35},{name:'⚡ Incantation rapide',desc:'Attaques 22 % plus fréquentes',apply:()=>player.rate*=.78},{name:'❖ Pas léger',desc:'+18 % de vitesse',apply:()=>player.speed*=1.18},{name:'♡ Sève de vie',desc:'+25 PV maximum et soigne 35 PV',apply:()=>{player.maxHp+=25;player.hp=Math.min(player.maxHp,player.hp+35)}},{name:'✧ Orbe jumeau',desc:'Un projectile supplémentaire par attaque',apply:()=>player.shots=Math.min(5,player.shots+1)},{name:'⬡ Écorce protectrice',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15)},{name:'☄ Longue portée',desc:'+25 % de portée magique',apply:()=>player.range*=1.25}];
-function chooseUpgrade(){state='upgrade';const pool=[...upgrades].sort(()=>Math.random()-.5).slice(0,3);setPanel('<div class="sigil">❧</div><h1>Vague '+wave+' repoussée</h1><p>La clairière t’offre un pouvoir. Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>');panel.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{pool[+b.dataset.i].apply();wave++;spawned=0;spawnTimer=1;between=0;state='playing';hidePanel();announce(wave===5?'Vague 5 · Le gardien corrompu':'Vague '+wave)})}
-function end(win){state=win?'won':'lost';setPanel('<div class="sigil">'+(win?'✺':'☽')+'</div><h1>'+(win?'La clairière est sauvée !':'La brume a gagné')+'</h1><p>'+(win?'Le gardien est vaincu. La forêt peut respirer à nouveau.':'Tu as atteint la vague '+wave+' et vaincu '+kills+' créatures.')+'</p><button class="button" id="again">Rejouer</button>');document.getElementById('again').onclick=reset}
-function createEnemy(type){let side=Math.floor(Math.random()*4),pad=35,x=side===0?-pad:side===1?W+pad:rand(0,W),y=side===2?-pad:side===3?H+pad:rand(0,H);if(type==='boss'){x=W/2;y=-55}let spec=type==='boss'?{r:34,hp:600,speed:48,damage:23,color:'#a85d9b'}:type==='brute'?{r:21,hp:82+wave*12,speed:61+wave*3,damage:17,color:'#a57759'}:type==='wisp'?{r:11,hp:26+wave*5,speed:125+wave*5,damage:9,color:'#b6d1a8'}:{r:15,hp:40+wave*7,speed:88+wave*4,damage:11,color:'#9cbaa4'};enemies.push({x,y,type,...spec,maxHp:spec.hp,hit:0,phase:rand(0,6),attack:rand(1,2)})}
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+let W=0,H=0,dpr=1,hudBottom=50,last=0,clock=0,state='menu',wave=1,spawned=0,spawnTimer=0,between=0,kills=0,bossSpawned=false,bannerTimer=0;
+let projectiles=[],enemies=[],particles=[],rings=[],keys={},pointer=null,joy=null,player=null;
+// Décor en coordonnées relatives : il ne « saute » plus quand la barre d'adresse mobile apparaît ou disparaît.
+const decor=Array.from({length:55},()=>({x:Math.random(),y:Math.random(),r:rand(1,4),kind:Math.random()}));
+const newPlayer=()=>({x:W/2,y:H/2,r:15,hp:100,maxHp:100,speed:210,damage:24,rate:.57,range:350,shots:1,shield:0,fire:0,inv:0});
+
+function resize(){
+  dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
+  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+  hudBottom=hud.getBoundingClientRect().bottom;
+  if(state==='menu'&&player){player.x=W/2;player.y=H/2}
+}
+addEventListener('resize',resize);resize();player=newPlayer();
+
+// --- Panneaux, bannière, pause ---
+function releaseInput(){pointer=null;joy=null;keys={}}
+// armDelay (ms) : les boutons restent inactifs un instant, pour qu'un tap réflexe pendant le combat ne choisisse pas à la place du joueur.
+function setPanel(html,armDelay=0){
+  panel.innerHTML=html;overlay.classList.remove('hidden');overlay.scrollTop=0;pauseEl.classList.add('hidden');releaseInput();
+  if(armDelay>0){const buttons=[...panel.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);setTimeout(()=>buttons.forEach(b=>b.disabled=false),armDelay)}
+}
+function hidePanel(){overlay.classList.add('hidden');pauseEl.classList.remove('hidden')}
+function announce(t){clearTimeout(bannerTimer);banner.textContent=t;banner.classList.add('show');bannerTimer=setTimeout(()=>banner.classList.remove('show'),1600)}
+function pause(){if(state!=='playing')return;state='paused';setPanel('<div class="sigil">☽</div><h1>Pause</h1><p>La clairière attend ton retour.</p><button class="button" id="resume">Reprendre</button>');$('resume').onclick=resume}
+function resume(){if(state!=='paused')return;state='playing';hidePanel()}
+pauseEl.onclick=pause;
+// Pause automatique : appel, notification, changement d'appli ou d'onglet.
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
+addEventListener('blur',pause);
+
+// --- Déroulement d'une partie ---
+function reset(){wave=1;spawned=0;spawnTimer=.8;between=0;kills=0;clock=0;bossSpawned=false;projectiles=[];enemies=[];particles=[];rings=[];player=newPlayer();state='playing';hidePanel();hint.style.display='block';announce('Vague 1 · Les brumes s’éveillent')}
+function menu(){state='menu';setPanel('<div class="sigil">✧</div><h1>La Clairière<br>des Brumes</h1><p>Protège la clairière pendant cinq vagues. Déplace la mage du bout du doigt : ses sorts visent automatiquement les créatures proches.</p><button class="button" id="start">Entrer dans la clairière</button><div class="small">Sur ordinateur : flèches ou ZQSD / WASD · Échap pour la pause</div>');$('start').onclick=reset}
+const upgrades=[
+  {name:'✦ Orbe renforcé',desc:'+35 % de dégâts',apply:()=>player.damage*=1.35},
+  {name:'⚡ Incantation rapide',desc:'Attaques 22 % plus fréquentes',apply:()=>player.rate*=.78},
+  {name:'❖ Pas léger',desc:'+18 % de vitesse',apply:()=>player.speed*=1.18},
+  {name:'♡ Sève de vie',desc:'+25 PV maximum et soigne 35 PV',apply:()=>{player.maxHp+=25;player.hp=Math.min(player.maxHp,player.hp+35)}},
+  {name:'✧ Orbe jumeau',desc:'Un projectile supplémentaire par attaque',apply:()=>player.shots=Math.min(5,player.shots+1)},
+  {name:'⬡ Écorce protectrice',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15)},
+  {name:'☄ Longue portée',desc:'+25 % de portée magique',apply:()=>player.range*=1.25}
+];
+function chooseUpgrade(){
+  state='upgrade';const pool=[...upgrades].sort(()=>Math.random()-.5).slice(0,3);
+  setPanel('<div class="sigil">❧</div><h1>Vague '+wave+' repoussée</h1><p>La clairière t’offre un pouvoir. Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>',600);
+  panel.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{pool[+b.dataset.i].apply();wave++;spawned=0;spawnTimer=1;between=0;state='playing';hidePanel();announce(wave===5?'Vague 5 · Le gardien corrompu':'Vague '+wave)});
+}
+function end(win){state=win?'won':'lost';refreshHud();buzz(win?[30,60,30]:120);setPanel('<div class="sigil">'+(win?'✺':'☽')+'</div><h1>'+(win?'La clairière est sauvée !':'La brume a gagné')+'</h1><p>'+(win?'Le gardien est vaincu. La forêt peut respirer à nouveau.':'Tu as atteint la vague '+wave+' et vaincu '+kills+' créatures.')+'</p><button class="button" id="again">Rejouer</button>',800);$('again').onclick=reset}
+
+// --- Simulation ---
+function createEnemy(type){
+  let side=Math.floor(Math.random()*4),pad=35,x=side===0?-pad:side===1?W+pad:rand(0,W),y=side===2?-pad:side===3?H+pad:rand(0,H);
+  if(type==='boss'){x=W/2;y=-55}
+  let spec=type==='boss'?{r:34,hp:600,speed:48,damage:23,color:'#a85d9b'}:type==='brute'?{r:21,hp:82+wave*12,speed:61+wave*3,damage:17,color:'#a57759'}:type==='wisp'?{r:11,hp:26+wave*5,speed:125+wave*5,damage:9,color:'#b6d1a8'}:{r:15,hp:40+wave*7,speed:88+wave*4,damage:11,color:'#9cbaa4'};
+  enemies.push({x,y,type,...spec,maxHp:spec.hp,hit:0,phase:rand(0,6),attack:rand(1,2)});
+}
 function burst(x,y,color,n=9){for(let i=0;i<n;i++)particles.push({x,y,vx:rand(-90,90),vy:rand(-90,90),life:rand(.25,.65),max:.65,color,r:rand(2,5)})}
-function update(dt){clock+=dt;player.inv=Math.max(0,player.inv-dt);player.fire-=dt;
-let mx=0,my=0;if(keys.ArrowLeft||keys.a||keys.q)mx--;if(keys.ArrowRight||keys.d)mx++;if(keys.ArrowUp||keys.w||keys.z)my--;if(keys.ArrowDown||keys.s)my++;if(joy){mx+=joy.dx;my+=joy.dy}let len=Math.hypot(mx,my);if(len>0){player.x+=mx/Math.max(1,len)*player.speed*dt;player.y+=my/Math.max(1,len)*player.speed*dt}player.x=clamp(player.x,player.r+8,W-player.r-8);player.y=clamp(player.y,player.r+50,H-player.r-8);
-const total=wave===5?16:5+wave*3;if(spawned<total){spawnTimer-=dt;if(spawnTimer<=0){let type=wave>=3&&spawned%6===4?'brute':wave>=2&&spawned%4===2?'wisp':'goblin';createEnemy(type);spawned++;spawnTimer=wave===5?.56:Math.max(.4,1.05-wave*.1)}}else if(wave===5&&!enemies.some(e=>e.type==='boss')&&!window.bossSpawned){createEnemy('boss');window.bossSpawned=true;announce('Le gardien corrompu apparaît !')}
-if(player.fire<=0&&enemies.length){let targets=[...enemies].filter(e=>Math.hypot(e.x-player.x,e.y-player.y)<player.range).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));if(targets.length){for(let i=0;i<player.shots;i++){let e=targets[Math.min(i,targets.length-1)],angle=Math.atan2(e.y-player.y,e.x-player.x)+(i>0&&targets.length===1?(i-(player.shots-1)/2)*.17:0);projectiles.push({x:player.x,y:player.y,vx:Math.cos(angle)*460,vy:Math.sin(angle)*460,life:1.1,damage:player.damage,r:5})}player.fire=player.rate;rings.push({x:player.x,y:player.y,r:13,life:.17})}}
-for(let i=projectiles.length-1;i>=0;i--){let p=projectiles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;let hit=enemies.find(e=>Math.hypot(p.x-e.x,p.y-e.y)<p.r+e.r);if(hit){hit.hp-=p.damage;hit.hit=.12;burst(p.x,p.y,'#e6d299',4);projectiles.splice(i,1);if(hit.hp<=0){burst(hit.x,hit.y,hit.color,15);enemies.splice(enemies.indexOf(hit),1);kills++}}else if(p.life<=0||p.x<-20||p.x>W+20||p.y<-20||p.y>H+20)projectiles.splice(i,1)}
-for(const e of enemies){e.hit=Math.max(0,e.hit-dt);e.phase+=dt;let dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;if(d>e.r+player.r-3){e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt}else if(player.inv<=0){player.hp-=e.damage*(1-player.shield);player.inv=.7;burst(player.x,player.y,'#f2938a',10);if(player.hp<=0){player.hp=0;end(false);break}}if(e.type==='boss'){e.attack-=dt;if(e.attack<=0){e.attack=2.3;rings.push({x:e.x,y:e.y,r:e.r,life:.45,boss:true});if(d<125&&player.inv<=0){player.hp-=17*(1-player.shield);player.inv=.7;burst(player.x,player.y,'#d38ec0',8);if(player.hp<=0){player.hp=0;end(false)}}}}}
-for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;if(p.life<=0)particles.splice(i,1)}for(let i=rings.length-1;i>=0;i--){rings[i].life-=dt;if(rings[i].life<=0)rings.splice(i,1)}
-if(state==='playing'&&spawned===total&&enemies.length===0){if(wave===5){if(window.bossSpawned)end(true)}else{between+=dt;if(between>.8)chooseUpgrade()}}waveEl.textContent='Vague '+wave+'/5';hpEl.style.width=(100*player.hp/player.maxHp)+'%';killsEl.textContent=kills+' ✦'}
+function hurtPlayer(amount,color){
+  if(player.inv>0||state!=='playing')return;
+  player.hp-=amount*(1-player.shield);player.inv=.7;burst(player.x,player.y,color,10);buzz(35);
+  if(player.hp<=0){player.hp=0;end(false)}
+}
+function refreshHud(){waveEl.textContent='Vague '+wave+'/5';hpEl.style.width=(100*player.hp/player.maxHp)+'%';killsEl.textContent=kills+' ✦'}
+function update(dt){
+  clock+=dt;player.inv=Math.max(0,player.inv-dt);player.fire-=dt;
+  let mx=0,my=0;
+  if(keys.ArrowLeft||keys.a||keys.q)mx--;if(keys.ArrowRight||keys.d)mx++;if(keys.ArrowUp||keys.w||keys.z)my--;if(keys.ArrowDown||keys.s)my++;
+  if(joy){mx+=joy.dx;my+=joy.dy}
+  const len=Math.hypot(mx,my);
+  if(len>0){player.x+=mx/Math.max(1,len)*player.speed*dt;player.y+=my/Math.max(1,len)*player.speed*dt}
+  player.x=clamp(player.x,player.r+8,W-player.r-8);player.y=clamp(player.y,hudBottom+26,H-player.r-8);
+
+  const total=wave===5?16:5+wave*3;
+  if(spawned<total){spawnTimer-=dt;if(spawnTimer<=0){let type=wave>=3&&spawned%6===4?'brute':wave>=2&&spawned%4===2?'wisp':'goblin';createEnemy(type);spawned++;spawnTimer=wave===5?.56:Math.max(.4,1.05-wave*.1)}}
+  else if(wave===5&&!bossSpawned){createEnemy('boss');bossSpawned=true;announce('Le gardien corrompu apparaît !')}
+
+  if(player.fire<=0&&enemies.length){
+    let targets=enemies.filter(e=>Math.hypot(e.x-player.x,e.y-player.y)<player.range).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));
+    if(targets.length){
+      for(let i=0;i<player.shots;i++){let e=targets[Math.min(i,targets.length-1)],angle=Math.atan2(e.y-player.y,e.x-player.x)+(i>0&&targets.length===1?(i-(player.shots-1)/2)*.17:0);projectiles.push({x:player.x,y:player.y,vx:Math.cos(angle)*460,vy:Math.sin(angle)*460,life:1.1,damage:player.damage,r:5})}
+      player.fire=player.rate;rings.push({x:player.x,y:player.y,r:13,life:.17});
+    }
+  }
+  for(let i=projectiles.length-1;i>=0;i--){
+    let p=projectiles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
+    let hit=enemies.find(e=>Math.hypot(p.x-e.x,p.y-e.y)<p.r+e.r);
+    if(hit){hit.hp-=p.damage;hit.hit=.12;burst(p.x,p.y,'#e6d299',4);projectiles.splice(i,1);if(hit.hp<=0){burst(hit.x,hit.y,hit.color,15);enemies.splice(enemies.indexOf(hit),1);kills++}}
+    else if(p.life<=0||p.x<-20||p.x>W+20||p.y<-20||p.y>H+20)projectiles.splice(i,1);
+  }
+  for(const e of enemies){
+    if(state!=='playing')break;
+    e.hit=Math.max(0,e.hit-dt);e.phase+=dt;
+    let dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
+    if(d>e.r+player.r-3){e.x+=dx/d*e.speed*dt;e.y+=dy/d*e.speed*dt}else hurtPlayer(e.damage,'#f2938a');
+    if(e.type==='boss'){e.attack-=dt;if(e.attack<=0){e.attack=2.3;rings.push({x:e.x,y:e.y,r:e.r,life:.45,boss:true});if(d<125)hurtPlayer(17,'#d38ec0')}}
+  }
+  for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;if(p.life<=0)particles.splice(i,1)}
+  for(let i=rings.length-1;i>=0;i--){rings[i].life-=dt;if(rings[i].life<=0)rings.splice(i,1)}
+  if(state==='playing'&&spawned===total&&enemies.length===0){if(wave===5){if(bossSpawned)end(true)}else{between+=dt;if(between>.8)chooseUpgrade()}}
+  refreshHud();
+}
+
+// --- Rendu ---
 function circle(x,y,r,color){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()}
-function draw(){ctx.fillStyle='#172a2b';ctx.fillRect(0,0,W,H);let gradient=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.68);gradient.addColorStop(0,'#385446');gradient.addColorStop(1,'#14292b');ctx.fillStyle=gradient;ctx.fillRect(0,0,W,H);
-for(const d of decor){ctx.globalAlpha=.16+Math.sin(clock*1.5+d.x)*.08;circle(d.x,d.y,d.r,d.kind>.86?'#d4c889':'#abc9a0')}ctx.globalAlpha=1;
-ctx.strokeStyle='#91a98b16';ctx.lineWidth=2;for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-for(const r of rings){ctx.globalAlpha=Math.max(0,r.life*1.7);ctx.strokeStyle=r.boss?'#e8a2d0':'#eed990';ctx.lineWidth=r.boss?6:2;ctx.beginPath();ctx.arc(r.x,r.y,r.r+(r.boss?(.45-r.life)*220:(.17-r.life)*80),0,Math.PI*2);ctx.stroke()}ctx.globalAlpha=1;
-for(const e of enemies){circle(e.x,e.y+6,e.r+3,'#0d20248a');circle(e.x,e.y,e.r,e.hit>0?'#fff1dc':e.color);if(e.type==='boss'){circle(e.x,e.y-4,23,'#684c77');ctx.fillStyle='#d3acd3';ctx.beginPath();ctx.moveTo(e.x-26,e.y-19);ctx.lineTo(e.x-17,e.y-45);ctx.lineTo(e.x-8,e.y-24);ctx.lineTo(e.x+8,e.y-24);ctx.lineTo(e.x+17,e.y-45);ctx.lineTo(e.x+26,e.y-19);ctx.fill();circle(e.x-10,e.y-4,4,'#ffe4a1');circle(e.x+10,e.y-4,4,'#ffe4a1')}else if(e.type==='wisp'){circle(e.x,e.y,6,'#e5efb5');circle(e.x-4,e.y-2,2,'#fff')}else{circle(e.x-5,e.y-3,2,'#f6e1a5');circle(e.x+5,e.y-3,2,'#f6e1a5');if(e.type==='brute'){ctx.fillStyle='#c5a277';ctx.fillRect(e.x-17,e.y-23,34,8)}}if(e.hp<e.maxHp){ctx.fillStyle='#251d29';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2,4);ctx.fillStyle='#e89b83';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2*e.hp/e.maxHp,4)}}
-for(const p of projectiles){circle(p.x,p.y,9,'#e8c98555');circle(p.x,p.y,p.r,'#ffe3a2')}for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;
-circle(player.x,player.y+8,18,'#10232a99');circle(player.x,player.y,player.r,player.inv>0&&Math.floor(clock*12)%2?'#f7b7ab':'#547e91');ctx.fillStyle='#29395a';ctx.beginPath();ctx.moveTo(player.x-17,player.y+8);ctx.lineTo(player.x,player.y-25);ctx.lineTo(player.x+17,player.y+8);ctx.fill();circle(player.x,player.y-8,8,'#eec89e');circle(player.x+12,player.y+1,3,'#f9d58d');ctx.strokeStyle='#dfc595';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x+13,player.y+3);ctx.lineTo(player.x+18,player.y-19);ctx.stroke();circle(player.x+18,player.y-20,5,'#fbe09c');
-if(joy){ctx.strokeStyle='#eedba487';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.x,joy.y,43,0,7);ctx.stroke();circle(joy.x+joy.dx*35,joy.y+joy.dy*35,16,'#e8d5a766')}
+function draw(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#172a2b';ctx.fillRect(0,0,W,H);let gradient=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.68);gradient.addColorStop(0,'#385446');gradient.addColorStop(1,'#14292b');ctx.fillStyle=gradient;ctx.fillRect(0,0,W,H);
+  for(const d of decor){ctx.globalAlpha=.16+Math.sin(clock*1.5+d.x*W)*.08;circle(d.x*W,d.y*H,d.r,d.kind>.86?'#d4c889':'#abc9a0')}ctx.globalAlpha=1;
+  ctx.strokeStyle='#91a98b16';ctx.lineWidth=2;for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  for(const r of rings){ctx.globalAlpha=Math.max(0,r.life*1.7);ctx.strokeStyle=r.boss?'#e8a2d0':'#eed990';ctx.lineWidth=r.boss?6:2;ctx.beginPath();ctx.arc(r.x,r.y,r.r+(r.boss?(.45-r.life)*220:(.17-r.life)*80),0,Math.PI*2);ctx.stroke()}ctx.globalAlpha=1;
+  for(const e of enemies){
+    circle(e.x,e.y+6,e.r+3,'#0d20248a');circle(e.x,e.y,e.r,e.hit>0?'#fff1dc':e.color);
+    if(e.type==='boss'){circle(e.x,e.y-4,23,'#684c77');ctx.fillStyle='#d3acd3';ctx.beginPath();ctx.moveTo(e.x-26,e.y-19);ctx.lineTo(e.x-17,e.y-45);ctx.lineTo(e.x-8,e.y-24);ctx.lineTo(e.x+8,e.y-24);ctx.lineTo(e.x+17,e.y-45);ctx.lineTo(e.x+26,e.y-19);ctx.fill();circle(e.x-10,e.y-4,4,'#ffe4a1');circle(e.x+10,e.y-4,4,'#ffe4a1')}
+    else if(e.type==='wisp'){circle(e.x,e.y,6,'#e5efb5');circle(e.x-4,e.y-2,2,'#fff')}
+    else{circle(e.x-5,e.y-3,2,'#f6e1a5');circle(e.x+5,e.y-3,2,'#f6e1a5');if(e.type==='brute'){ctx.fillStyle='#c5a277';ctx.fillRect(e.x-17,e.y-23,34,8)}}
+    if(e.hp<e.maxHp){ctx.fillStyle='#251d29';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2,4);ctx.fillStyle='#e89b83';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2*e.hp/e.maxHp,4)}
+  }
+  for(const p of projectiles){circle(p.x,p.y,9,'#e8c98555');circle(p.x,p.y,p.r,'#ffe3a2')}for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;
+  circle(player.x,player.y+8,18,'#10232a99');circle(player.x,player.y,player.r,player.inv>0&&Math.floor(clock*12)%2?'#f7b7ab':'#547e91');ctx.fillStyle='#29395a';ctx.beginPath();ctx.moveTo(player.x-17,player.y+8);ctx.lineTo(player.x,player.y-25);ctx.lineTo(player.x+17,player.y+8);ctx.fill();circle(player.x,player.y-8,8,'#eec89e');circle(player.x+12,player.y+1,3,'#f9d58d');ctx.strokeStyle='#dfc595';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x+13,player.y+3);ctx.lineTo(player.x+18,player.y-19);ctx.stroke();circle(player.x+18,player.y-20,5,'#fbe09c');
+  if(joy){ctx.strokeStyle='#eedba487';ctx.lineWidth=2;ctx.beginPath();ctx.arc(joy.x,joy.y,43,0,7);ctx.stroke();circle(joy.x+joy.dx*35,joy.y+joy.dy*35,16,'#e8d5a766')}
 }
 function loop(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-function startPointer(e){if(state!=='playing')return;pointer=e.pointerId;let x=e.clientX,y=e.clientY;joy={x,y,dx:0,dy:0};canvas.setPointerCapture(e.pointerId);hint.style.display='none'}canvas.addEventListener('pointerdown',startPointer);canvas.addEventListener('pointermove',e=>{if(e.pointerId!==pointer||!joy)return;let dx=e.clientX-joy.x,dy=e.clientY-joy.y,d=Math.hypot(dx,dy);joy.dx=dx/Math.max(d,45);joy.dy=dy/Math.max(d,45)});function release(e){if(e.pointerId===pointer){pointer=null;joy=null}}canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
-addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();if(e.key==='Escape'&&state==='playing')pause()});addEventListener('keyup',e=>keys[e.key]=false);
-function pause(){if(state!=='playing')return;state='paused';setPanel('<div class="sigil">☽</div><h1>Pause</h1><p>La clairière attend ton retour.</p><button class="button" id="resume">Reprendre</button>');document.getElementById('resume').onclick=()=>{state='playing';hidePanel()}}pauseEl.onclick=()=>state==='playing'?pause():state==='paused'&&document.getElementById('resume').click();
+
+// --- Contrôles ---
+function startPointer(e){if(state!=='playing')return;pointer=e.pointerId;joy={x:e.clientX,y:e.clientY,dx:0,dy:0};canvas.setPointerCapture(e.pointerId);hint.style.display='none'}
+canvas.addEventListener('pointerdown',startPointer);
+canvas.addEventListener('pointermove',e=>{if(e.pointerId!==pointer||!joy)return;let dx=e.clientX-joy.x,dy=e.clientY-joy.y,d=Math.hypot(dx,dy);joy.dx=dx/Math.max(d,45);joy.dy=dy/Math.max(d,45)});
+function release(e){if(e.pointerId===pointer){pointer=null;joy=null}}
+canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+// Les lettres sont normalisées en minuscules : Maj ou Verr. Maj ne laissent plus de touche « coincée ».
+const keyName=e=>e.key.length===1?e.key.toLowerCase():e.key;
+addEventListener('keydown',e=>{keys[keyName(e)]=true;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();if(e.key==='Escape'){if(state==='playing')pause();else resume()}});
+addEventListener('keyup',e=>keys[keyName(e)]=false);
 menu();
 })();
 </script></body></html>
