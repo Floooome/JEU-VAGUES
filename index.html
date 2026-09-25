@@ -1,34 +1,33 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><meta name="theme-color" content="#101a21"><title>La Clairière des Brumes</title><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101a21;color:#f4eac8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}canvas{display:block;width:100%;height:100%}
-.hud{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;pointer-events:none}.hud>.pill:first-child{justify-self:start}.bar{position:relative;height:20px;width:min(260px,calc(100vw - 2*max(14px,env(safe-area-inset-left)) - 236px));border:2px solid #e9cf98;border-radius:20px;background:#301d25;overflow:hidden;box-shadow:0 2px 12px #0008}.hptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff8e6;text-shadow:0 1px 2px #000d,0 0 6px #000a;font-variant-numeric:tabular-nums;letter-spacing:.02em}.fill{height:100%;background:linear-gradient(90deg,#d95765,#f3ad82);width:100%;transition:width .15s}.pill{padding:6px 11px;background:#15252bcc;border:1px solid #c8a76d88;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px #0005}.topright{justify-self:end}
-.overlay{position:absolute;inset:0;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:max(22px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left));background:#0b151bbd;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}.hidden{display:none}.panel{margin:auto;width:min(440px,100%);padding:27px 24px;background:linear-gradient(160deg,#25383a,#16252e);border:2px solid #b9945d;border-radius:22px;text-align:center;box-shadow:0 22px 70px #000a,inset 0 1px #ffffff25;animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.97)}}
-.sigil{font-size:46px;line-height:1;margin-bottom:8px}h1{font-family:Georgia,serif;font-size:clamp(28px,7vw,39px);line-height:1.08;margin:8px 0 12px;color:#f6d99b}p{line-height:1.5;color:#d7d4c5;margin:10px 0 20px;font-size:15px}
-.button,.choice{appearance:none;border:1px solid #d3b37c;color:#1a2630;background:linear-gradient(#f5db9d,#caa76b);border-radius:13px;font-weight:800;font-size:16px;padding:13px 18px;cursor:pointer;width:100%;min-height:49px;transition:opacity .2s}.button:active,.choice:active{transform:scale(.98)}.button:disabled,.choice:disabled{opacity:.45;cursor:default;transform:none}.choices{display:grid;gap:10px;text-align:left}.choice{background:#21383c;color:#f5e8ca;text-align:left;padding:12px 14px}.choice strong{display:block;color:#f5ce85;font-size:17px}.choice span{display:block;font-size:13px;font-weight:400;color:#d3d9cf;margin-top:3px}.small{font-size:12px;color:#adbdb2;margin:14px 0 0}
-.wavebanner{position:absolute;top:22%;left:0;right:0;text-align:center;font-family:Georgia,serif;font-size:28px;color:#ffdda0;text-shadow:0 2px 18px #000;pointer-events:none;opacity:0;transition:opacity .3s}.wavebanner.show{opacity:1}
-.pause{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));right:max(17px,env(safe-area-inset-right));border:1px solid #d7bd8a;background:#1e3539c9;color:#f5e6c5;border-radius:50%;width:48px;height:48px;font-size:19px;cursor:pointer}.pause.hidden{display:none}.hint{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:max(17px,env(safe-area-inset-left));right:80px;color:#e1e2cca8;font-size:12px;pointer-events:none}#overlay:not(.hidden){z-index:5}.version{position:absolute;bottom:max(4px,env(safe-area-inset-bottom));left:max(8px,env(safe-area-inset-left));z-index:6;font-size:10px;letter-spacing:.04em;color:#e1e2cc;opacity:.4;pointer-events:none}@media(min-width:700px){.hint{font-size:14px}}@media(max-width:420px){.hud .pill{font-size:12px;padding:5px 9px}.hud{gap:6px}}@media(max-width:340px){.hptext{font-size:10px}}
-@media(max-height:520px) and (orientation:landscape){.panel{width:min(760px,100%);padding:16px 20px}.sigil{display:none}h1{font-size:25px;margin:2px 0 6px}p{margin:4px 0 12px;font-size:14px}.choices{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.choice{min-height:0}.wavebanner{top:16%;font-size:24px}}
-</style></head><body><canvas id="game" aria-label="Arène de jeu"></canvas><div class="hud"><div class="pill" id="wave">Vague 1/10</div><div class="bar"><div class="fill" id="health"></div><div class="hptext" id="hptext">100/100</div></div><div class="pill topright" id="kills">0 ✦</div></div><div class="wavebanner" id="banner"></div><div class="hint" id="hint">Glisser pour se déplacer · attaque automatique</div><div class="version">v0.02</div><button class="pause hidden" id="pause" aria-label="Pause">Ⅱ</button><div class="overlay" id="overlay"><div class="panel" id="panel"></div></div><script>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><meta name="theme-color" content="#11161d"><title>Vagues</title><style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#11161d;color:#e8eef6;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;top:max(12px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right));display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;pointer-events:none}.hud>.pill:first-child{justify-self:start}.bar{position:relative;height:20px;width:min(260px,calc(100vw - 2*max(14px,env(safe-area-inset-left)) - 236px));border:2px solid #8fa4bb;border-radius:20px;background:#2a1d24;overflow:hidden;box-shadow:0 2px 12px #0008}.hptext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#ffffff;text-shadow:0 1px 2px #000d,0 0 6px #000a;font-variant-numeric:tabular-nums;letter-spacing:.02em}.fill{height:100%;background:linear-gradient(90deg,#d95765,#f3ad82);width:100%;transition:width .15s}.pill{padding:6px 11px;background:#18202bcc;border:1px solid #5b6f8788;border-radius:20px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px #0005}.topright{justify-self:end}
+.overlay{position:absolute;inset:0;display:flex;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:max(22px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left));background:#0a0e14c4;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}.hidden{display:none}.panel{margin:auto;width:min(440px,100%);padding:27px 24px;background:linear-gradient(160deg,#222c3a,#161c26);border:2px solid #4a5d75;border-radius:22px;text-align:center;box-shadow:0 22px 70px #000a,inset 0 1px #ffffff25;animation:rise .25s ease-out}@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.97)}}
+h1{font-size:clamp(28px,7vw,38px);font-weight:800;letter-spacing:.01em;line-height:1.08;margin:4px 0 12px;color:#f2f7ff}p{line-height:1.5;color:#c3ccd8;margin:10px 0 20px;font-size:15px}
+.button,.choice{appearance:none;border:1px solid #7fdcff;color:#0d1a24;background:linear-gradient(#8ae6ff,#3fb3e0);border-radius:13px;font-weight:800;font-size:16px;padding:13px 18px;cursor:pointer;width:100%;min-height:49px;transition:opacity .2s}.button:active,.choice:active{transform:scale(.98)}.button:disabled,.choice:disabled{opacity:.45;cursor:default;transform:none}.choices{display:grid;gap:10px;text-align:left}.choice{background:#1d2735;color:#e8eef6;text-align:left;padding:12px 14px}.choice strong{display:block;color:#7fdcff;font-size:17px}.choice span{display:block;font-size:13px;font-weight:400;color:#c3ccd8;margin-top:3px}.small{font-size:12px;color:#8f9bab;margin:14px 0 0}
+.wavebanner{position:absolute;top:22%;left:0;right:0;text-align:center;font-size:26px;font-weight:800;letter-spacing:.02em;color:#e6f7ff;text-shadow:0 2px 18px #000;pointer-events:none;opacity:0;transition:opacity .3s}.wavebanner.show{opacity:1}
+.pause{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));right:max(17px,env(safe-area-inset-right));border:1px solid #6d829b;background:#1b2431c9;color:#e8eef6;border-radius:50%;width:48px;height:48px;font-size:19px;cursor:pointer}.pause.hidden{display:none}.hint{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));left:max(17px,env(safe-area-inset-left));right:80px;color:#c9d3dfa8;font-size:12px;pointer-events:none}#overlay:not(.hidden){z-index:5}.version{position:absolute;bottom:max(4px,env(safe-area-inset-bottom));left:max(8px,env(safe-area-inset-left));z-index:6;font-size:10px;letter-spacing:.04em;color:#c9d3df;opacity:.4;pointer-events:none}@media(min-width:700px){.hint{font-size:14px}}@media(max-width:420px){.hud .pill{font-size:12px;padding:5px 9px}.hud{gap:6px}}@media(max-width:340px){.hptext{font-size:10px}}
+@media(max-height:520px) and (orientation:landscape){.panel{width:min(760px,100%);padding:16px 20px}h1{font-size:25px;margin:2px 0 6px}p{margin:4px 0 12px;font-size:14px}.choices{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.choice{min-height:0}.wavebanner{top:16%;font-size:24px}}
+</style></head><body><canvas id="game" aria-label="Arène de jeu"></canvas><div class="hud"><div class="pill" id="wave">Vague 1/10</div><div class="bar"><div class="fill" id="health"></div><div class="hptext" id="hptext">100/100</div></div><div class="pill topright" id="kills">0 ✦</div></div><div class="wavebanner" id="banner"></div><div class="hint" id="hint">Glisser pour déplacer le robot · tir automatique</div><div class="version">v0.03</div><button class="pause hidden" id="pause" aria-label="Pause">Ⅱ</button><div class="overlay" id="overlay"><div class="panel" id="panel"></div></div><script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const canvas=$('game'),ctx=canvas.getContext('2d'),overlay=$('overlay'),panel=$('panel'),banner=$('banner'),hud=document.querySelector('.hud');
 const waveEl=$('wave'),hpEl=$('health'),hpText=$('hptext'),killsEl=$('kills'),pauseEl=$('pause'),hint=$('hint');
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
-// Les gardiens s'arrêtent et annoncent leur attaque BOSS_WINDUP secondes avant de frapper : elle peut s'esquiver.
+// Les boss s'arrêtent et annoncent leur attaque BOSS_WINDUP secondes avant de frapper : elle peut s'esquiver.
 const BOSS_WINDUP=.8,SHOT_SPEED=460,SAFE_SPAWN=230;
-// Composition des vagues : nombre de créatures, intervalle d'apparition (s) et multiplicateur de PV des créatures.
-// Acte I : vagues 1 à 5 (gardien corrompu). Acte II : vagues 6 à 10 (sorciers des ronces, puis la reine des ronces).
+// Composition des vagues : nombre d'ennemis, intervalle d'apparition (s) et multiplicateur de PV des ennemis.
+// Vagues 1 à 5 : premier boss. Vagues 6 à 10 : tireurs à distance, puis boss final.
 const WAVES={1:{count:10,every:.8},2:{count:11,every:.85},3:{count:14,every:.75},4:{count:17,every:.65},5:{count:16,every:.56},
   6:{count:16,every:.62,hp:1.3},7:{count:18,every:.56,hp:1.45},8:{count:20,every:.5,hp:1.6},9:{count:22,every:.46,hp:1.75},10:{count:18,every:.5,hp:1.9}};
 const FINAL_WAVE=10;
-const BOSSES={5:{type:'boss',name:'Le gardien corrompu',defeated:'Le gardien est vaincu !',next:'La brume se dissipe… mais des ronces envahissent la clairière. L’acte II commence.'},
-  10:{type:'queen',name:'La reine des ronces'}};
+const BOSSES={5:{type:'boss',name:'Boss',defeated:'Boss vaincu !',next:'Les vagues suivantes sont plus difficiles.'},
+  10:{type:'queen',name:'Boss final'}};
+// Clé de stockage conservée telle quelle pour garder les records déjà enregistrés.
 const BETWEEN_HEAL=.15,BEST_KEY='clairiere-des-brumes:record';
 let W=0,H=0,SW=0,SH=0,S=1,dpr=1,hudBottom=50,last=0,clock=0,state='menu',wave=1,spawned=0,spawnTimer=0,between=0,kills=0,bossSpawned=false,bannerTimer=0;
 let projectiles=[],bolts=[],enemies=[],particles=[],rings=[],texts=[],shake=0,hurtFlash=0,keys={},pointer=null,joy=null,player=null;
-// Décor en coordonnées relatives : il ne « saute » plus quand la barre d'adresse mobile apparaît ou disparaît.
-const decor=Array.from({length:55},()=>({x:Math.random(),y:Math.random(),r:rand(1,4),kind:Math.random()}));
 const newPlayer=()=>({x:W/2,y:H/2,r:15,hp:100,maxHp:100,speed:210,damage:24,rate:.57,range:350,shots:1,shield:0,fire:0,inv:0});
 
 // Le monde est mesuré en unités de jeu : environ 400 unités sur le petit côté de l'écran.
@@ -53,9 +52,9 @@ function announce(t){clearTimeout(bannerTimer);banner.textContent=t;banner.class
 function loadBest(){try{return JSON.parse(localStorage.getItem(BEST_KEY))}catch(e){return null}}
 function saveBest(run){try{localStorage.setItem(BEST_KEY,JSON.stringify(run))}catch(e){}}
 const runScore=r=>r?(r.won?r.wave+1:r.wave)*1000+r.kills:-1;
-const describeRun=r=>(r.won&&r.wave>=FINAL_WAVE?'clairière sauvée':'vague '+r.wave)+' · '+r.kills+' créatures';
+const describeRun=r=>(r.won&&r.wave>=FINAL_WAVE?'victoire':'vague '+r.wave)+' · '+r.kills+' ennemis';
 function bestLine(){const b=loadBest();return b?'<div class="small">Record : '+describeRun(b)+'</div>':''}
-function pause(){if(state!=='playing')return;state='paused';setPanel('<div class="sigil">☽</div><h1>Pause</h1><p>La clairière attend ton retour.</p><button class="button" id="resume">Reprendre</button>');$('resume').onclick=resume}
+function pause(){if(state!=='playing')return;state='paused';setPanel('<h1>Pause</h1><p>Le jeu est en pause.</p><button class="button" id="resume">Reprendre</button>');$('resume').onclick=resume}
 function resume(){if(state!=='paused')return;state='playing';hidePanel()}
 pauseEl.onclick=pause;
 // Pause automatique : appel, notification, changement d'appli ou d'onglet.
@@ -63,16 +62,16 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
 addEventListener('blur',pause);
 
 // --- Déroulement d'une partie ---
-function reset(){wave=1;spawned=0;spawnTimer=.8;between=0;kills=0;clock=0;bossSpawned=false;projectiles=[];bolts=[];enemies=[];particles=[];rings=[];texts=[];shake=0;hurtFlash=0;player=newPlayer();state='playing';hidePanel();hint.style.display='block';announce('Vague 1 · Les brumes s’éveillent')}
-function menu(){state='menu';setPanel('<div class="sigil">✧</div><h1>La Clairière<br>des Brumes</h1><p>Protège la clairière pendant dix vagues et affronte ses deux gardiens. Déplace la mage du bout du doigt : ses sorts visent automatiquement les créatures proches.</p><button class="button" id="start">Entrer dans la clairière</button>'+bestLine()+'<div class="small">Sur ordinateur : flèches ou ZQSD / WASD · Échap pour la pause</div>');$('start').onclick=reset}
+function reset(){wave=1;spawned=0;spawnTimer=.8;between=0;kills=0;clock=0;bossSpawned=false;projectiles=[];bolts=[];enemies=[];particles=[];rings=[];texts=[];shake=0;hurtFlash=0;player=newPlayer();state='playing';hidePanel();hint.style.display='block';announce('Vague 1')}
+function menu(){state='menu';setPanel('<h1>Vagues</h1><p>Survis à dix vagues d’ennemis et bats les deux boss. Déplace le robot du bout du doigt : il tire automatiquement sur les ennemis proches.</p><button class="button" id="start">Jouer</button>'+bestLine()+'<div class="small">Sur ordinateur : flèches ou ZQSD / WASD · Échap pour la pause</div>');$('start').onclick=reset}
 const upgrades=[
-  {name:'✦ Orbe renforcé',desc:'+35 % de dégâts',apply:()=>player.damage*=1.35},
-  {name:'⚡ Incantation rapide',desc:'Attaques 22 % plus fréquentes',apply:()=>player.rate=Math.max(.18,player.rate*.78),available:()=>player.rate>.19},
-  {name:'❖ Pas léger',desc:'+18 % de vitesse',apply:()=>player.speed*=1.18,available:()=>player.speed<380},
-  {name:'♡ Sève de vie',desc:'+25 PV maximum et soigne 35 PV',apply:()=>{player.maxHp+=25;player.hp=Math.min(player.maxHp,player.hp+35)}},
-  {name:'✧ Orbe jumeau',desc:'Un projectile supplémentaire par attaque',apply:()=>player.shots=Math.min(5,player.shots+1),available:()=>player.shots<5},
-  {name:'⬡ Écorce protectrice',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15),available:()=>player.shield<.59},
-  {name:'☄ Longue portée',desc:'+25 % de portée magique',apply:()=>player.range*=1.25,available:()=>player.range<650}
+  {name:'▲ Puissance',desc:'+35 % de dégâts',apply:()=>player.damage*=1.35},
+  {name:'⚡ Cadence',desc:'Tirs 22 % plus fréquents',apply:()=>player.rate=Math.max(.18,player.rate*.78),available:()=>player.rate>.19},
+  {name:'» Vitesse',desc:'+18 % de vitesse de déplacement',apply:()=>player.speed*=1.18,available:()=>player.speed<380},
+  {name:'✚ Réparation',desc:'+25 PV maximum et répare 35 PV',apply:()=>{player.maxHp+=25;player.hp=Math.min(player.maxHp,player.hp+35)}},
+  {name:'⁑ Tir multiple',desc:'Un projectile supplémentaire par tir',apply:()=>player.shots=Math.min(5,player.shots+1),available:()=>player.shots<5},
+  {name:'■ Blindage',desc:'Réduit les dégâts reçus de 15 %',apply:()=>player.shield=Math.min(.6,player.shield+.15),available:()=>player.shield<.59},
+  {name:'◎ Portée',desc:'+25 % de portée de tir',apply:()=>player.range*=1.25,available:()=>player.range<650}
 ];
 function chooseUpgrade(){
   state='upgrade';
@@ -82,22 +81,22 @@ function chooseUpgrade(){
   pool.length=Math.min(3,pool.length);
   const healed=Math.round(Math.min(player.maxHp-player.hp,player.maxHp*BETWEEN_HEAL));player.hp+=healed;refreshHud();
   const boss=BOSSES[wave];
-  setPanel('<div class="sigil">❧</div><h1>'+(boss?boss.defeated:'Vague '+wave+' repoussée')+'</h1><p>'+(boss?boss.next+' ':'')+(healed>0?'La clairière te rend '+healed+' PV et t’offre un pouvoir.':'La clairière t’offre un pouvoir.')+' Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>',600);
-  panel.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{pool[+b.dataset.i].apply();wave++;spawned=0;spawnTimer=1;between=0;state='playing';bossSpawned=false;hidePanel();announce(BOSSES[wave]?'Vague '+wave+' · '+BOSSES[wave].name:wave===6?'Vague 6 · Acte II, les ronces':'Vague '+wave)});
+  setPanel('<h1>'+(boss?boss.defeated:'Vague '+wave+' terminée')+'</h1><p>'+(boss?boss.next+' ':'')+(healed>0?'Réparation automatique : +'+healed+' PV. ':'')+'Choisis une amélioration.</p><div class="choices">'+pool.map((u,i)=>'<button class="choice" data-i="'+i+'"><strong>'+u.name+'</strong><span>'+u.desc+'</span></button>').join('')+'</div>',600);
+  panel.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{pool[+b.dataset.i].apply();wave++;spawned=0;spawnTimer=1;between=0;state='playing';bossSpawned=false;hidePanel();announce(BOSSES[wave]?'Vague '+wave+' · '+BOSSES[wave].name:wave===6?'Vague 6 · Nouveaux ennemis':'Vague '+wave)});
 }
 function end(win){
   state=win?'won':'lost';refreshHud();buzz(win?[30,60,30]:120);
   const run={wave,kills,won:win},prev=loadBest(),record=runScore(run)>runScore(prev);
   if(record)saveBest(run);
   const recordLine=record&&prev?'<div class="small" style="color:#f5ce85">✦ Nouveau record ! (avant : '+describeRun(prev)+')</div>':record?'':bestLine();
-  setPanel('<div class="sigil">'+(win?'✺':'☽')+'</div><h1>'+(win?'La clairière est sauvée !':'La brume a gagné')+'</h1><p>'+(win?'Les deux gardiens sont vaincus après '+kills+' créatures repoussées. La forêt peut respirer à nouveau.':'Tu as atteint la vague '+wave+' et vaincu '+kills+' créatures.')+'</p><button class="button" id="again">Rejouer</button>'+recordLine,800);
+  setPanel('<h1>'+(win?'Victoire !':'Robot détruit')+'</h1><p>'+(win?'Les deux boss sont vaincus. '+kills+' ennemis détruits.':'Tu as atteint la vague '+wave+' et détruit '+kills+' ennemis.')+'</p><button class="button" id="again">Rejouer</button>'+recordLine,800);
   $('again').onclick=reset;
 }
 
 // --- Simulation ---
 function edgePoint(){const side=Math.floor(Math.random()*4),pad=35;return{x:side===0?-pad:side===1?W+pad:rand(0,W),y:side===2?-pad:side===3?H+pad:rand(0,H)}}
 function createEnemy(type){
-  // Plusieurs tirages : on garde le premier point assez loin de la mage, sinon le plus éloigné.
+  // Plusieurs tirages : on garde le premier point assez loin du robot, sinon le plus éloigné.
   let best=null,bestD=-1;
   for(let i=0;i<8;i++){const c=edgePoint(),d=Math.hypot(c.x-player.x,c.y-player.y);if(d>bestD){best=c;bestD=d}if(d>=SAFE_SPAWN)break}
   let {x,y}=best;
@@ -130,7 +129,7 @@ function update(dt){
   if(joy){mx+=joy.dx;my+=joy.dy}
   const len=Math.hypot(mx,my);
   if(len>0){player.x+=mx/Math.max(1,len)*player.speed*dt;player.y+=my/Math.max(1,len)*player.speed*dt}
-  player.x=clamp(player.x,player.r+8,W-player.r-8);player.y=clamp(player.y,hudBottom+26,H-player.r-8);
+  player.x=clamp(player.x,player.r+8,W-player.r-8);player.y=clamp(player.y,hudBottom+38,H-player.r-8);
 
   const total=WAVES[wave].count;
   if(spawned<total){spawnTimer-=dt;if(spawnTimer<=0){let type=wave>=6&&spawned%5===1?'caster':wave>=3&&spawned%6===4?'brute':(wave>=2&&spawned%4===2)||(wave===1&&spawned%5===3)?'wisp':'goblin';createEnemy(type);spawned++;spawnTimer=WAVES[wave].every}}
@@ -147,7 +146,7 @@ function update(dt){
     let p=projectiles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
     let hit=enemies.find(e=>Math.hypot(p.x-e.x,p.y-e.y)<p.r+e.r);
     if(hit){
-      hit.hp-=p.damage;hit.hit=.12;burst(p.x,p.y,'#e6d299',4);floatText(hit.x,hit.y-hit.r-8,Math.round(p.damage),'#ffe7ad');projectiles.splice(i,1);
+      hit.hp-=p.damage;hit.hit=.12;burst(p.x,p.y,'#9fe9ff',4);floatText(hit.x,hit.y-hit.r-8,Math.round(p.damage),'#e6f7ff');projectiles.splice(i,1);
       const push=hit.boss?1:hit.type==='brute'?4:8;hit.x+=p.vx/SHOT_SPEED*push;hit.y+=p.vy/SHOT_SPEED*push;
       if(hit.hp<=0){burst(hit.x,hit.y,hit.color,15);enemies.splice(enemies.indexOf(hit),1);kills++;if(hit.boss)shake=Math.min(12,shake+10)}
     }
@@ -158,7 +157,7 @@ function update(dt){
     e.hit=Math.max(0,e.hit-dt);e.phase+=dt;
     let dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy)||1;
     const windingUp=e.boss&&e.attack<BOSS_WINDUP;
-    // Le sorcier garde ses distances : il avance, recule ou reste sur place selon l'éloignement de la mage.
+    // Le sorcier garde ses distances : il avance, recule ou reste sur place selon l'éloignement du robot.
     const dir=e.type==='caster'?(d>230?1:d<160?-1:0):1;
     if(d>e.r+player.r-3){if(!windingUp){e.x+=dx/d*e.speed*dt*dir;e.y+=dy/d*e.speed*dt*dir}}else hurtPlayer(e.damage,'#f2938a');
     if(e.type==='caster'){
@@ -172,7 +171,7 @@ function update(dt){
       else{const a0=rand(0,Math.PI);for(let k=0;k<14;k++)shootBolt(e.x,e.y,a0+k*Math.PI*2/14,140,13)}
     }}
   }
-  // Les créatures se repoussent entre elles au lieu de se fondre en une seule masse ; le gardien ne bouge pas.
+  // Les ennemis se repoussent entre eux au lieu de se fondre en une seule masse ; le boss ne bouge pas.
   for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){
     const a=enemies[i],b=enemies[j];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.01,overlap=a.r+b.r-d;
     if(overlap>0){const share=a.boss?0:b.boss?1:.5;dx/=d;dy/=d;a.x-=dx*overlap*share;a.y-=dy*overlap*share;b.x+=dx*overlap*(1-share);b.y+=dy*overlap*(1-share)}
@@ -192,14 +191,29 @@ function update(dt){
 
 // --- Rendu ---
 function circle(x,y,r,color){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill()}
+function rrect(x,y,w,h,r,color){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fillStyle=color;ctx.fill()}
+// Petit robot : corps, tête à visière, antenne dont la bille s'allume à chaque tir. Il clignote en rose quand il est touché.
+function drawRobot(){
+  const x=player.x,y=player.y,hurt=player.inv>0&&Math.floor(clock*12)%2,metal=hurt?'#f7b7ab':'#a9bacb',dark=hurt?'#c98a84':'#6f8296';
+  const bob=Math.sin(clock*8)*(joy||Object.values(keys).some(Boolean)?1.2:.4),glow=Math.max(0,1-(player.rate-player.fire)/.18);
+  ctx.globalAlpha=.4;ctx.beginPath();ctx.ellipse(x,y+16,14,4.5,0,0,Math.PI*2);ctx.fillStyle='#05080c';ctx.fill();ctx.globalAlpha=1;
+  rrect(x-11,y+9,8,6,2,dark);rrect(x+3,y+9,8,6,2,dark);
+  rrect(x-17,y-2+bob,5,10,2,dark);rrect(x+12,y-2+bob,5,10,2,dark);
+  rrect(x-12,y-4+bob,24,16,5,metal);circle(x,y+4+bob,2.5,'#5ff2ff');
+  const hy=y-20+bob*1.3;
+  ctx.strokeStyle=dark;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,hy);ctx.lineTo(x,hy-10);ctx.stroke();
+  if(glow>0){ctx.globalAlpha=.5*glow;circle(x,hy-12,8,'#7fe9ff');ctx.globalAlpha=1}
+  circle(x,hy-12,3.5,glow>0?'#dffaff':'#ff6b6b');
+  rrect(x-11,hy,22,15,5,metal);rrect(x-8,hy+4,16,7,3.5,'#172230');
+  circle(x-3.5,hy+7.5,1.8,'#5ff2ff');circle(x+3.5,hy+7.5,1.8,'#5ff2ff');
+}
 function draw(){
   const sx=shake?rand(-shake,shake):0,sy=shake?rand(-shake,shake):0;
   ctx.setTransform(dpr*S,0,0,dpr*S,sx*dpr*S,sy*dpr*S);
-  ctx.fillStyle='#172a2b';ctx.fillRect(-20,-20,W+40,H+40);let gradient=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.68);gradient.addColorStop(0,'#385446');gradient.addColorStop(1,'#14292b');ctx.fillStyle=gradient;ctx.fillRect(-20,-20,W+40,H+40);
-  for(const d of decor){ctx.globalAlpha=.16+Math.sin(clock*1.5+d.x*W)*.08;circle(d.x*W,d.y*H,d.r,d.kind>.86?'#d4c889':'#abc9a0')}ctx.globalAlpha=1;
-  ctx.strokeStyle='#91a98b16';ctx.lineWidth=2;for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-  for(const r of rings){ctx.globalAlpha=Math.max(0,r.life*1.7);ctx.strokeStyle=r.boss?'#e8a2d0':'#eed990';ctx.lineWidth=r.boss?6:2;ctx.beginPath();ctx.arc(r.x,r.y,r.boss?r.R-(r.R-r.r)*r.life/.3:r.r+(.17-r.life)*80,0,Math.PI*2);ctx.stroke()}ctx.globalAlpha=1;
-  // Annonce des attaques de gardien : zone qui se remplit (onde) ou épines qui poussent (salve de projectiles).
+  ctx.fillStyle='#151b24';ctx.fillRect(-20,-20,W+40,H+40);let gradient=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,Math.max(W,H)*.68);gradient.addColorStop(0,'#232d3b');gradient.addColorStop(1,'#12171f');ctx.fillStyle=gradient;ctx.fillRect(-20,-20,W+40,H+40);
+  ctx.strokeStyle='#8aa0b818';ctx.lineWidth=2;for(let x=0;x<W;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  for(const r of rings){ctx.globalAlpha=Math.max(0,r.life*1.7);ctx.strokeStyle=r.boss?'#e8a2d0':'#7fe3ff';ctx.lineWidth=r.boss?6:2;ctx.beginPath();ctx.arc(r.x,r.y,r.boss?r.R-(r.R-r.r)*r.life/.3:r.r+(.17-r.life)*80,0,Math.PI*2);ctx.stroke()}ctx.globalAlpha=1;
+  // Annonce des attaques de boss : zone qui se remplit (onde) ou épines qui poussent (salve de projectiles).
   for(const e of enemies)if(e.boss&&e.attack<BOSS_WINDUP){
     const k=1-e.attack/BOSS_WINDUP,move=e.cycle[e.step%e.cycle.length],tint=e.type==='queen'?'#c6e59a':'#e8a2d0';
     if(move==='blast'){
@@ -222,8 +236,8 @@ function draw(){
     if(e.hp<e.maxHp){ctx.fillStyle='#251d29';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2,4);ctx.fillStyle='#e89b83';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2*e.hp/e.maxHp,4)}
   }
   for(const b of bolts){circle(b.x,b.y,b.r+5,'#a9d86a44');circle(b.x,b.y,b.r,'#cfee8f');circle(b.x,b.y,b.r-3,'#f7ffe0')}
-  for(const p of projectiles){circle(p.x,p.y,9,'#e8c98555');circle(p.x,p.y,p.r,'#ffe3a2')}for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;
-  circle(player.x,player.y+8,18,'#10232a99');circle(player.x,player.y,player.r,player.inv>0&&Math.floor(clock*12)%2?'#f7b7ab':'#547e91');ctx.fillStyle='#29395a';ctx.beginPath();ctx.moveTo(player.x-17,player.y+8);ctx.lineTo(player.x,player.y-25);ctx.lineTo(player.x+17,player.y+8);ctx.fill();circle(player.x,player.y-8,8,'#eec89e');circle(player.x+12,player.y+1,3,'#f9d58d');ctx.strokeStyle='#dfc595';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x+13,player.y+3);ctx.lineTo(player.x+18,player.y-19);ctx.stroke();circle(player.x+18,player.y-20,5,'#fbe09c');
+  for(const p of projectiles){circle(p.x,p.y,9,'#6fdcff44');circle(p.x,p.y,p.r,'#bff3ff')}for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;
+  drawRobot();
   ctx.textAlign='center';for(const t of texts){ctx.globalAlpha=Math.min(1,t.life/.3);ctx.font='800 '+t.size+'px system-ui,sans-serif';ctx.lineWidth=3;ctx.strokeStyle='#10202699';ctx.strokeText(t.text,t.x,t.y);ctx.fillStyle=t.color;ctx.fillText(t.text,t.x,t.y)}ctx.globalAlpha=1;
   // Le reste est dessiné en pixels d'écran (le joystick suit le doigt).
   ctx.setTransform(dpr,0,0,dpr,0,0);
